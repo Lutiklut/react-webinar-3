@@ -37,17 +37,29 @@ class Store {
     // Вызываем всех слушателей
     for (const listener of this.listeners) listener();
   }
+  /**
+   * Добавлене кода в объект
+   */
+  addCode() {
+    const actualCodes = this.state.list.map((item) => item.code); //массив видимых на странице кодов
+    const deletedCodes = (this.state.deletedList || []).map(
+      (item) => item.code
+    ); // массив удаленных кодов
 
+    const allCodes = [...actualCodes, ...deletedCodes];
+
+    const maxCode = Math.max(...allCodes);
+
+    return maxCode + 1;
+  }
   /**
    * Добавление новой записи
    */
   addItem() {
+    const newSymb = { code: this.addCode(), title: "Новая запись" };
     this.setState({
       ...this.state,
-      list: [
-        ...this.state.list,
-        { code: this.state.list.length + 1, title: "Новая запись" },
-      ],
+      list: [...this.state.list, newSymb],
     });
   }
 
@@ -56,10 +68,16 @@ class Store {
    * @param code
    */
   deleteItem(code) {
-    this.setState({
-      ...this.state,
-      list: this.state.list.filter((item) => item.code !== code),
-    });
+    const deleteI = this.state.list.find((cod) => cod.code === code);
+    if (deleteI) {
+      const upateDeleteI = [...(this.state.deletedList || []), deleteI];
+
+      this.setState({
+        ...this.state,
+        list: this.state.list.filter((item) => item.code !== code),
+        deletedList: upateDeleteI,
+      });
+    }
   }
 
   /**
