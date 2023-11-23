@@ -3,7 +3,7 @@
  */
 class Store {
   constructor(initState = {}) {
-    this.state = initState;
+    this.state = { ...initState, countCode: {} };
     this.listeners = []; // Слушатели изменений состояния
   }
 
@@ -85,15 +85,34 @@ class Store {
    * @param code
    */
   selectItem(code) {
+    const newCountCode = { ...this.state.countCode };
+    newCountCode[code] = (newCountCode[code] || 0) + 1;
+    const updatedList = this.state.list.map((item) => {
+      if (item.code === code) {
+        item.selected = !item.selected;
+      } else {
+        item.selected = false;
+      }
+      return item;
+    });
+
     this.setState({
       ...this.state,
-      list: this.state.list.map((item) => {
-        if (item.code === code) {
-          item.selected = !item.selected;
-        } else item.selected = false;
-        return item;
-      }),
+      countCode: newCountCode,
+      list: updatedList,
     });
+  }
+  /**
+   *
+   *Добавление записи о количестве кликов
+   */
+  getCountText(code) {
+    let count = this.state.countCode[code] || 0;
+
+    if (count % 2 === 0) count = Math.floor(count / 2);
+    else count = Math.floor(count / 2) + 1;
+
+    return count > 0 ? `| Выделяли ${count} раз` : "";
   }
 }
 
